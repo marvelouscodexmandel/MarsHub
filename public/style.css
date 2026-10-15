@@ -12,9 +12,10 @@ body{font-family:'Space Grotesk',system-ui,Arial;background:radial-gradient(circ
 .brand .jipped{background:linear-gradient(90deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent;padding-left:6px;font-weight:800}
 .tagline{font-size:12px;color:#ddd}
 .user-info{font-size:13px}
+.user-badge{display:flex;align-items:center;gap:8px;font-weight:600}
 .main{padding:20px}
 .card.login{max-width:420px;margin:40px auto;padding:28px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 6px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,215,0,0.08);text-align:center}
-.gold-btn{background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#000;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700}
+.gold-btn{background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#000;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700;border:none;cursor:pointer}
 .muted{color:#aaa;font-size:12px}
 .hidden{display:none}
 .chat-app{max-width:980px;margin:20px auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border-radius:12px;padding:0;overflow:hidden;border:1px solid rgba(255,215,0,0.04)}
@@ -25,9 +26,11 @@ body{font-family:'Space Grotesk',system-ui,Arial;background:radial-gradient(circ
 .message{max-width:70%;padding:12px;border-radius:12px;backdrop-filter:blur(6px)}
 .message.me{margin-left:auto;background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#111;box-shadow:0 6px 18px rgba(255,165,0,0.12);transform:scale(1);animation:pop .18s ease}
 .message.other{background:rgba(255,255,255,0.06);color:#fff}
+.message img, .message audio{max-width:220px;border-radius:8px;margin-top:8px}
+.reply{font-size:12px;opacity:0.75;margin:4px 0}
 @keyframes pop{0%{transform:scale(0.96)}100%{transform:scale(1)}}
 .composer{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,0.02);align-items:center}
 .text-input{flex:1;padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,0.02);color:#fff}
-.btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:#fff}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:#fff;cursor:pointer}
 .small{padding:8px 12px}
 .badge{display:inline-block;padding:2px 6px;border-radius:6px;background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#111;margin-left:8px;font-weight:700}

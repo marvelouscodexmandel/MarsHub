@@ -31,18 +31,16 @@
           <div class="title">MASS HUB - JIPPED</div>
           <div class="status">Online: <span id="onlineCount">0</span></div>
         </div>
-        <div id="chatArea" class="chat-area"></div>
+        <div id="chatArea" class="chat-area" aria-live="polite"></div>
         <div class="composer">
           <input type="file" id="fileInput" style="display:none" />
-          <button id="plusBtn" class="btn">＋</button>
+          <button id="plusBtn" class="btn" type="button">＋</button>
           <input id="textInput" class="text-input" placeholder="Message..." />
-          <button id="micBtn" class="btn">🎤</button>
-          <button id="sendBtn" class="gold-btn small">Send</button>
+          <button id="micBtn" class="btn" type="button">🎤</button>
+          <button id="sendBtn" class="gold-btn small" type="button">Send</button>
         </div>
       </div>
     </main>
-
-    <audio id="newMsgSound" src="/public/notify.mp3" preload="auto"></audio>
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>

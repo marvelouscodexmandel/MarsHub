@@ -1,9 +1,6 @@
-// client.js
-(async function(){
+(function(){
   const socket = io();
-  const userRes = await fetch('/api/user');
-  const data = await userRes.json();
-  const user = data.user;
+
   const loginCard = document.getElementById('loginCard');
   const chatApp = document.getElementById('chatApp');
   const userInfo = document.getElementById('userInfo');
@@ -13,76 +10,127 @@
   const plusBtn = document.getElementById('plusBtn');
   const fileInput = document.getElementById('fileInput');
   const micBtn = document.getElementById('micBtn');
-  const newMsgSound = document.getElementById('newMsgSound');
   const onlineCount = document.getElementById('onlineCount');
 
-  if (!user) {
-    loginCard.classList.remove('hidden');
-    chatApp.classList.add('hidden');
-  } else {
+  function beep() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = 740;
+      gain.gain.value = 0.045;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => {
+        osc.stop();
+        ctx.close();
+      }, 180);
+    } catch (e) {}
+  }
+
+  function handleUserState(user) {
+    if (!user) {
+      loginCard.classList.remove('hidden');
+      chatApp.classList.add('hidden');
+      return;
+    }
+
     loginCard.classList.add('hidden');
     chatApp.classList.remove('hidden');
     userInfo.innerHTML = `<div class="user-badge" style="color:${user.color}">${user.username} <span class="badge">✓</span> <span class="badge">EXCLUSIVE</span></div>`;
     socket.emit('join', user);
   }
 
-  function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html!==undefined) e.innerHTML = html; return e }
+  async function loadCurrentUser() {
+    try {
+      const res = await fetch('/api/user');
+      const data = await res.json();
+      handleUserState(data.user || null);
+    } catch (err) {
+      handleUserState(null);
+    }
+  }
 
-  function renderMessage(m){
-    const div = el('div', 'message ' + ((m.user.username === (user && user.username)) ? 'me' : 'other'));
-    const meta = el('div','meta',`<strong style="color:${m.user.color}">${m.user.username}</strong> <small>${new Date(m.time).toLocaleTimeString()}</small>`);
-    div.appendChild(meta);
-    if (m.replyTo) {
-      div.appendChild(el('div','reply','↪ Reply'));
+  function buildMessageMarkup(msg) {
+    const mine = msg.user && msg.user.username === (window.currentUser && window.currentUser.username);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message ' + (mine ? 'me' : 'other');
+
+    const meta = document.createElement('div');
+    meta.innerHTML = `<strong style="color:${msg.user ? msg.user.color : '#fff'}">${msg.user ? msg.user.username : 'Unknown'}</strong> <small>${new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>`;
+    wrapper.appendChild(meta);
+
+    if (msg.replyTo) {
+      const reply = document.createElement('div');
+      reply.className = 'reply';
+      reply.textContent = '↪ Reply';
+      wrapper.appendChild(reply);
     }
-    if (m.text) div.appendChild(el('div','text',m.text));
-    if (m.file) {
-      const f = m.file;
-      if (f.mime && f.mime.startsWith('image/')) {
-        const img = el('img','',`<img src="${f.url}" style="max-width:220px;border-radius:8px" />`);
-        div.appendChild(img);
+
+    if (msg.text) {
+      const text = document.createElement('div');
+      text.textContent = msg.text;
+      wrapper.appendChild(text);
+    }
+
+    if (msg.file && msg.file.url) {
+      const fileNode = document.createElement('div');
+      if (msg.file.mime && msg.file.mime.startsWith('image/')) {
+        fileNode.innerHTML = `<img src="${msg.file.url}" alt="${msg.file.name || 'upload'}" />`;
+      } else if (msg.file.mime && msg.file.mime.startsWith('audio/')) {
+        fileNode.innerHTML = `<audio controls src="${msg.file.url}"></audio>`;
       } else {
-        const a = el('a','',`<a href="${f.url}" target="_blank">${f.name}</a>`);
-        div.appendChild(a);
+        fileNode.innerHTML = `<a href="${msg.file.url}" target="_blank" rel="noreferrer">${msg.file.name || 'file'}</a>`;
       }
+      wrapper.appendChild(fileNode);
     }
-    if (m.voice) {
-      const audio = el('audio','',`<audio controls src="${m.voice.url}"></audio>`);
-      div.appendChild(audio);
+
+    if (msg.voice && msg.voice.url) {
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = msg.voice.url;
+      wrapper.appendChild(audio);
     }
-    const actions = el('div','actions',`<button class="btn react">❤️</button> <button class="btn react">😂</button> <button class="btn del">Delete</button> <button class="btn pin">Pin</button>`);
-    div.appendChild(actions);
-    return div;
+
+    const reactions = document.createElement('div');
+    reactions.innerHTML = '<button class="btn react" type="button">❤️</button> <button class="btn react" type="button">😂</button> <button class="btn react" type="button">🔥</button>';
+    wrapper.appendChild(reactions);
+
+    return wrapper;
   }
 
   socket.on('history', (msgs) => {
     chatArea.innerHTML = '';
-    msgs.forEach(m => chatArea.appendChild(renderMessage(m)));
+    (msgs || []).forEach((m) => chatArea.appendChild(buildMessageMarkup(m)));
     chatArea.scrollTop = chatArea.scrollHeight;
   });
 
   socket.on('newMessage', (m) => {
-    chatArea.appendChild(renderMessage(m));
-    newMsgSound.play().catch(()=>{});
+    chatArea.appendChild(buildMessageMarkup(m));
     chatArea.scrollTop = chatArea.scrollHeight;
+    beep();
   });
 
-  socket.on('online', (list) => {
-    onlineCount.textContent = list.length;
+  socket.on('online', (users) => {
+    onlineCount.textContent = Array.isArray(users) ? users.length : 0;
   });
 
   socket.on('typing', ({ username }) => {
-    // show fleeting typing indicator
-    const t = el('div','typing',`${username} is jipping...`);
-    chatArea.appendChild(t);
-    setTimeout(()=>t.remove(),1200);
+    const indicator = document.createElement('div');
+    indicator.className = 'message other';
+    indicator.textContent = `${username} is jipping...`;
+    chatArea.appendChild(indicator);
+    setTimeout(() => indicator.remove(), 1200);
   });
 
   socket.on('blocked', ({ reason }) => {
-    alert(reason);
+    alert(reason || 'Message blocked by AI filter');
   });
 
-  sendBtn.addEventListener('click', async () => {
+  sendBtn.addEventListener('click', () => {
     const text = textInput.value.trim();
     if (!text) return;
     socket.emit('newMessage', { text });
@@ -95,41 +143,53 @@
 
   plusBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
+    const file = e.target.files[0];
+    if (!file) return;
     const form = new FormData();
-    form.append('file', f);
-    const res = await fetch('/api/upload', { method:'POST', body: form });
-    const json = await res.json();
-    socket.emit('newMessage', { file: { url: json.url, name: json.original, size: json.size, mime: json.mime } });
-  });
-
-  // Voice recording
-  let mediaRecorder, audioChunks = [];
-  let recording = false;
-  micBtn.addEventListener('click', async () => {
-    if (!recording) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-        const form = new FormData();
-        form.append('file', blob, 'voice.webm');
-        const res = await fetch('/api/upload', { method: 'POST', body: form });
-        const json = await res.json();
-        // send as voice message
-        socket.emit('newMessage', { voice: { url: json.url, name: json.original, size: json.size, mime: json.mime } });
-      };
-      mediaRecorder.start();
-      micBtn.textContent = '⏺️ Stop';
-      recording = true;
-    } else {
-      mediaRecorder.stop();
-      micBtn.textContent = '🎤';
-      recording = false;
+    form.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: form });
+      const json = await res.json();
+      socket.emit('newMessage', {
+        file: { url: json.url, name: json.original, mime: json.mime }
+      });
+    } catch (err) {
+      alert('Upload failed');
     }
   });
 
+  micBtn.addEventListener('click', async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('Voice notes are not supported in this browser.');
+      return;
+    }
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream);
+    const chunks = [];
+
+    recorder.ondataavailable = (event) => chunks.push(event.data);
+    recorder.onstop = async () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const form = new FormData();
+      form.append('file', blob, 'voice.webm');
+      const res = await fetch('/api/upload', { method: 'POST', body: form });
+      const json = await res.json();
+      socket.emit('newMessage', { voice: { url: json.url, name: json.original, mime: json.mime } });
+      stream.getTracks().forEach((track) => track.stop());
+    };
+
+    recorder.start();
+    micBtn.textContent = '⏹️';
+    micBtn.onclick = () => {
+      recorder.stop();
+      micBtn.textContent = '🎤';
+      micBtn.onclick = null;
+      setTimeout(() => {
+        micBtn.onclick = arguments.callee;
+      }, 250);
+    };
+  });
+
+  loadCurrentUser();
 })();

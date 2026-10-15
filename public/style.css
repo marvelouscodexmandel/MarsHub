@@ -1,0 +1,33 @@
+/* style.css */
+:root{
+  --bg:#050505;
+  --gold1:#FFD700;
+  --gold2:#FFA500;
+  --glass: rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box}
+body{font-family:'Space Grotesk',system-ui,Arial;background:radial-gradient(circle at 20% 80%, #1a1a0a, #050505);color:#fff;margin:0;height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;padding:18px 28px;background:linear-gradient(90deg,#0a0a0a,#1a1a1a);backdrop-filter:blur(8px);}
+.brand .logo{font-weight:700;font-size:20px;letter-spacing:1px}
+.brand .jipped{background:linear-gradient(90deg,var(--gold1),var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent;padding-left:6px;font-weight:800}
+.tagline{font-size:12px;color:#ddd}
+.user-info{font-size:13px}
+.main{padding:20px}
+.card.login{max-width:420px;margin:40px auto;padding:28px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 6px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,215,0,0.08);text-align:center}
+.gold-btn{background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#000;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700}
+.muted{color:#aaa;font-size:12px}
+.hidden{display:none}
+.chat-app{max-width:980px;margin:20px auto;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border-radius:12px;padding:0;overflow:hidden;border:1px solid rgba(255,215,0,0.04)}
+.stories{display:flex;gap:12px;padding:12px;overflow:auto;border-bottom:1px solid rgba(255,255,255,0.02)}
+.story{width:64px;height:64px;border-radius:50%;background:linear-gradient(90deg,var(--gold1),var(--gold2));padding:3px;display:flex;align-items:center;justify-content:center}
+.chat-header{display:flex;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.02)}
+.chat-area{height:calc(100vh - 260px);overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.message{max-width:70%;padding:12px;border-radius:12px;backdrop-filter:blur(6px)}
+.message.me{margin-left:auto;background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#111;box-shadow:0 6px 18px rgba(255,165,0,0.12);transform:scale(1);animation:pop .18s ease}
+.message.other{background:rgba(255,255,255,0.06);color:#fff}
+@keyframes pop{0%{transform:scale(0.96)}100%{transform:scale(1)}}
+.composer{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,0.02);align-items:center}
+.text-input{flex:1;padding:10px;border-radius:10px;border:0;background:rgba(255,255,255,0.02);color:#fff}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:#fff}
+.small{padding:8px 12px}
+.badge{display:inline-block;padding:2px 6px;border-radius:6px;background:linear-gradient(90deg,var(--gold1),var(--gold2));color:#111;margin-left:8px;font-weight:700}

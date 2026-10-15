@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MASS HUB - JIPPED EDITION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="brand">
+        <div class="logo">MASS HUB <span class="jipped">JIPPED</span></div>
+        <div class="tagline">EXCLUSIVE ONLY</div>
+      </div>
+      <div id="userInfo" class="user-info"></div>
+    </header>
+
+    <main class="main">
+      <div id="loginCard" class="card login">
+        <h2>Welcome to MASS HUB</h2>
+        <p>Exclusive chat for Gmail users only.</p>
+        <a class="gold-btn" href="/auth/google">Sign in with Google (Gmail only)</a>
+        <p class="muted">No phone required. After login a unique username is generated for you.</p>
+      </div>
+
+      <div id="chatApp" class="chat-app hidden">
+        <div class="stories" id="storiesBar"></div>
+        <div class="chat-header">
+          <div class="title">MASS HUB - JIPPED</div>
+          <div class="status">Online: <span id="onlineCount">0</span></div>
+        </div>
+        <div id="chatArea" class="chat-area"></div>
+        <div class="composer">
+          <input type="file" id="fileInput" style="display:none" />
+          <button id="plusBtn" class="btn">＋</button>
+          <input id="textInput" class="text-input" placeholder="Message..." />
+          <button id="micBtn" class="btn">🎤</button>
+          <button id="sendBtn" class="gold-btn small">Send</button>
+        </div>
+      </div>
+    </main>
+
+    <audio id="newMsgSound" src="/public/notify.mp3" preload="auto"></audio>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="/public/client.js"></script>
+</body>
+</html>
